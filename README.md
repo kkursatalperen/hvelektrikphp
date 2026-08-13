@@ -8,15 +8,52 @@ frontend/      React + Vite kaynak kodu (hvelektrik.vercel.app'te su an calisan 
 backend-php/   PHP + MySQL backend (Python backend'in tam karsiligi)
 ```
 
-> **Önemli düzeltme notu:** Bu paketin önceki bir sürümü backend'in sadece
-> auth/contact/career/news kısmını içeriyordu — o, projenin eski (main branch,
-> 9 Temmuz) bir kopyasına dayanıyordu. Gerçek canlı site (master branch, 26
-> Temmuz) çok daha fazla özellik kullanıyor: anasayfa slider'ı, hizmet
-> kategorileri, sayaçlar, çok dilli metin sistemi, footer içeriği, iş ortakları,
-> proje vitrini, kariyer ilanları. **Bu sürüm hepsini kapsıyor** ve gerçek
-> canlı veriyle uçtan uca test edildi.
+## ⚠️ SİTEYİ ÇALIŞTIRMAK İÇİN MUTLAKA YAPILMASI GEREKENLER (önem sırasına göre)
 
-## 1. Mimari
+Bunlardan biri atlanırsa/yanlış yapılırsa site ya hiç açılmaz ya da açılır
+ama içi boş görünür. Sırayla:
+
+### 1. Bu repodan TAZE çalışın — eski bir kopya kullanmayın
+
+Elinizde daha önceden kalmış bir zip/klasör varsa **kullanmayın**. Sadece
+`hvelektrikphp` reposunu şimdi indirin (GitHub → Code → Download ZIP, ya da
+`git clone`). Daha önce bir kere "eski site" sorunu bundan kaynaklanmıştı.
+
+### 2. `backend-php/.env` dosyasını doldurun — EN KRİTİK ADIM
+
+Size ayrıca (repo dışında, güvenli kanaldan) iletilen `.env` dosyasını
+`backend-php/` klasörünün köküne koyun, içindeki şu 2 alanı **mutlaka**
+kendinize göre düzenleyin:
+
+- **`DB_HOST` / `DB_NAME` / `DB_USER` / `DB_PASS`** — hosting'te MySQL
+  veritabanı oluşturunca alacağınız bilgiler (aşağıda adım adım anlatılıyor).
+- **`ALLOWED_ORIGINS`** — sitenin gerçek adresini buraya yazmazsanız,
+  backend çalışsa bile site boş görünür (tarayıcı isteği engeller). Örnek:
+  ```
+  ALLOWED_ORIGINS=https://hvelektrik.com.tr,https://www.hvelektrik.com.tr
+  ```
+  (`https://` ile, hem www'lu hem www'suz varsa ikisi de, virgülle ayrılmış.)
+
+### 3. `frontend/.env` dosyasını doldurun, SONRA build alın
+
+`frontend/.env.example`'ı `frontend/.env` yapıp `VITE_BACKEND_URL`'e backend'in
+adresini yazın (ör. `https://api.hvelektrik.com.tr`, sonunda `/api` OLMADAN).
+**Sıra önemli: önce bu dosyayı doldurun, `npm run build`'i ondan SONRA
+çalıştırın** — build alırken bu adres kod içine gömülüyor, sonradan
+değiştiremezsiniz, yeniden build almanız gerekir.
+
+### 4. Deploy ettikten sonra hemen kontrol edin (2 dakika)
+
+1. `https://api.SIZINDOMAIN.com/api` → `{"service":"HV Elektrik API","ok":true,...}` görmelisiniz.
+2. Ana sayfa: slider, kategoriler, sayaçlar, projeler, footer dolu olmalı
+   (boşsa 2. ve 3. adımları kontrol edin).
+3. **Sağ altta "Made with Emergent" rozeti GÖRÜNMEMELİ.** Görünüyorsa 1.
+   adımı atladınız demektir — yanlış/eski bir kaynak kullanılmış.
+4. İletişim formu + kariyer formu (CV yükleme) + admin girişini deneyin.
+
+---
+
+## Mimari
 
 | Katman | Teknoloji | Nerede |
 |---|---|---|
@@ -30,48 +67,43 @@ Frontend, backend'e `VITE_BACKEND_URL` üzerinden HTTP istekleri atar
 (`frontend/src/lib/api.js`). **Dikkat:** Vite projeleri `REACT_APP_` değil
 `VITE_` önekli ortam değişkeni kullanır.
 
-## 2. Gereksinimler (hosting tarafında)
+## Gereksinimler (hosting tarafında)
 
 - PHP **8.1+** (8.2 önerilir), eklentiler: `pdo_mysql`, `curl`, `mbstring`
+  (çoğu paylaşımlı hostingde zaten açık gelir)
 - MySQL/MariaDB veritabanı
 - Apache + `mod_rewrite` (backend `.htaccess` kullanıyor)
 - Node.js sadece **yerel build almak için** gerekli (hosting'e Node kurulmaz,
   sadece `npm run build`'in çıktısı olan statik dosyalar yüklenir)
+- **Ekstra bir yazılım kurmanıza gerek yok** — Composer, Docker, XAMPP vb.
+  hiçbiri gerekmiyor, paylaşımlı hosting zaten PHP+MySQL+Apache ile hazır gelir.
 
-Composer / SSH gerekmiyor — PHP tarafında hiçbir üçüncü parti kütüphane yok.
+## Detaylı kurulum adımları
 
-## 3. Kurulum adımları
-
-### 3.1 Backend (PHP) — `backend-php/` klasörü
+### Backend (PHP) — `backend-php/` klasörü
 
 1. **Veritabanı oluşturun** (hosting kontrol paneli → MySQL Veritabanları).
 2. **Şemayı çalıştırın**: phpMyAdmin → SQL sekmesi → `backend-php/migrations/schema.sql`.
-3. **`.env` oluşturun** (`backend-php/.env.example`'dan kopyalayıp `backend-php/.env`
-   olarak kaydedin — `backend-php/public/` klasörünün DIŞINDA kalmalı; document
-   root ayrı bir alt alan adına verildiyse bu otomatik olarak web'den erişilemez olur).
-4. **Dosyaları yükleyin**: `backend-php/` klasörünün TAMAMINI (public/, src/,
-   migrations/, .env) hosting'e aktarın; bir subdomain açıp (ör.
-   `api.hvelektrik.com.tr`) document root'unu `backend-php/public/` yapın.
+3. **`.env` doldurun** (yukarıdaki "MUTLAKA YAPILMASI GEREKENLER" bölümüne
+   bakın) — `backend-php/public/` klasörünün DIŞINDA kalmalı.
+4. **Dosyaları yükleyin**: `backend-php/` klasörünün TAMAMINI hosting'e
+   aktarın; bir subdomain açıp (ör. `api.hvelektrik.com.tr`) document
+   root'unu `backend-php/public/` yapın.
 5. **Veri taşıyın**: aşağıdaki "Veri taşıma" bölümüne bakın.
-6. **Test edin**: `https://api.hvelektrik.com.tr/api` → `{"service":"HV Elektrik API","ok":true,...}`.
-7. **`ALLOWED_ORIGINS`'i güncelleyin**: `.env`'de frontend'in gerçek adresini
-   ekleyin (bkz. aşağıdaki CORS bölümü) — **bu adım atlanırsa frontend
-   backend'e istek atamaz (CORS hatası alırsınız), site boş görünür.**
 
-### 3.2 Frontend (React/Vite) — `frontend/` klasörü
+### Frontend (React/Vite) — `frontend/` klasörü
 
-1. `frontend/.env.example`'ı `frontend/.env` yapıp `VITE_BACKEND_URL`'i
-   backend'in adresine ayarlayın (sonunda `/api` OLMADAN).
+1. `frontend/.env` doldurun (yukarıya bakın).
 2. ```bash
    cd frontend
    npm install --legacy-peer-deps
    npm run build
    ```
-3. Oluşan **`frontend/build/`** klasörünün içeriğini hosting'e yükleyin (ana
-   domain veya istediğiniz alt klasör) — çıktı klasörü `dist/` DEĞİL `build/`'dir.
-4. `frontend/vercel.json`'daki SPA rewrite kuralı (`/(.*) → /index.html`)
-   Apache'de karşılığı yok — Apache için `frontend/build/.htaccess` dosyası
-   oluşturup şunu ekleyin:
+3. Oluşan **`frontend/build/`** klasörünün içeriğini hosting'e yükleyin —
+   çıktı klasörü `dist/` DEĞİL `build/`'dir. Yüklemeden önce hedef klasördeki
+   eski dosyaları temizleyin (eski + yeni dosyalar karışmasın).
+4. `frontend/vercel.json`'daki SPA rewrite kuralı Apache'de karşılığı yok —
+   Apache için `frontend/build/.htaccess` oluşturup şunu ekleyin:
    ```apache
    RewriteEngine On
    RewriteCond %{REQUEST_FILENAME} !-f
@@ -80,40 +112,14 @@ Composer / SSH gerekmiyor — PHP tarafında hiçbir üçüncü parti kütüphan
    ```
    (Yoksa `/haberler/xyz` gibi doğrudan girilen alt sayfa adresleri 404 verir.)
 
-### 3.3 CORS (`ALLOWED_ORIGINS`)
+## Veri taşıma (mevcut MongoDB verisi → yeni MySQL)
 
-Backend, `.env`'deki `ALLOWED_ORIGINS` listesinde **tam olarak eşleşen**
-origin'lerden gelen isteklere izin verir (orijinal Python backend'deki
-`CORSMiddleware(allow_origins=[...])` ile birebir aynı davranış). Varsayılan:
-
-```
-ALLOWED_ORIGINS=https://hvelektrik.vercel.app,http://localhost:5173,http://localhost:3000
-```
-
-Frontend'i yeni domain'e taşıdığınızda bu listeye **gerçek domain'i eklemeniz
-şart**, örneğin:
-
-```
-ALLOWED_ORIGINS=https://hvelektrik.com.tr,https://www.hvelektrik.com.tr
-```
-
-## 4. Veri taşıma (mevcut MongoDB verisi → yeni MySQL)
-
-`backend-php/scripts/export/` klasöründe zaten canlı veriden alınmış bir dışa
-aktarım var (bu depoya girmez — ayrıca, güvenli bir kanaldan size iletildi).
-İçindeki 12 dosya: `users`, `messages`, `careers`, `news`, `hero_slides`,
+Size ayrıca iletilen `backend-php/scripts/export/` klasöründe canlı veriden
+alınmış 12 dosya var: `users`, `messages`, `careers`, `news`, `hero_slides`,
 `categories`, `counters`, `page_content`, `footer_info`, `partners`,
 `projects`, `career_posts`.
 
-Yeniden/güncel almak isterseniz:
-
-```bash
-cd backend-php/scripts
-pip install pymongo dnspython
-MONGO_URL="<eski backend/.env icindeki MONGO_URL>" DB_NAME="<eski backend/.env icindeki DB_NAME>" python export_mongo.py
-```
-
-Sonra hosting'de (SSH varsa):
+Hosting'de (SSH varsa):
 
 ```bash
 cd backend-php
@@ -127,12 +133,20 @@ kaybına yol açmaz (idempotent).
 SSH yoksa: `backend-php/scripts/` klasörünü geçici olarak `backend-php/public/`
 altına taşıyıp tarayıcıdan bir kere çalıştırın, hemen ardından silin.
 
-## 5. Ne taşınmadı
+Veriyi yeniden/güncel almak isterseniz:
+
+```bash
+cd backend-php/scripts
+pip install pymongo dnspython
+MONGO_URL="<eski backend/.env icindeki MONGO_URL>" DB_NAME="<eski backend/.env icindeki DB_NAME>" python export_mongo.py
+```
+
+## Ne taşınmadı
 
 Mongo'daki `services`, `about`, `settings`, `meta` koleksiyonları gerçek
 backend'de (server.py) hiçbir route tarafından kullanılmıyor — taşınmadı.
 
-## 6. Yerel geliştirme / test
+## Yerel geliştirme / test
 
 Backend:
 ```bash
@@ -147,45 +161,9 @@ npm install --legacy-peer-deps
 npm run dev
 ```
 
-## 7. Bilinen küçük veri notu (acil değil)
+## Bilinen küçük veri notu (acil değil)
 
 `projects` tablosundaki en eski kayıtlardan biri, eski bir şema sürümünden
 kalma fazladan alanlar (`title`, `sector`, `location` gibi) içeriyordu — bunlar
 hiçbir yerde kullanılmadığı için taşınmadı, güncel alanlar (`title_tr` vb.)
 zaten doluydu ve birebir aktarıldı. Görsel olarak fark etmezsiniz.
-
-## 8. Hosting'e aktarırken kontrol listesi (ÖNEMLİ — "eski site geldi" hatasını önlemek için)
-
-Daha önce bu projede, eski/güncel-olmayan bir kod kopyası hosting'e yüklendiği
-için site "1 ay önceki hali" ile canlıya çıkmıştı. Bunun tekrarlanmaması için:
-
-- [ ] **Sadece bu repodan (`hvelektrikphp`) çalışın.** Elinizde daha önceden
-      kalmış başka bir zip, mail eki veya eski bir proje klasörü varsa
-      **kullanmayın, silin/karıştırmayın**. Tek doğru kaynak bu repo.
-- [ ] Repoyu **taze** çekin: `git clone` yapın (veya "Code → Download ZIP"
-      ile şimdi indirin) — eskiden indirdiğiniz bir kopyayı güncellemeye
-      çalışmayın.
-- [ ] Frontend build'ini **sıfırdan** alın: `frontend/node_modules` klasörü
-      zaten varsa silin, sonra `npm install --legacy-peer-deps` ve
-      `npm run build` çalıştırın. Eski bir `build/` klasörünü tekrar
-      yüklemeyin.
-- [ ] Hosting'de dosya yüklemeden önce **hedef klasörü boşaltın** (eski
-      dosyalar yeni dosyalarla karışıp tuhaf sonuçlara yol açabilir).
-- [ ] Ekstra bir yazılım kurmanıza **gerek yok** (XAMPP, Docker vb. sadece
-      bizim yerel testimiz içindi) — paylaşımlı hosting zaten PHP + MySQL +
-      Apache ile hazır gelir.
-
-### Deploy sonrası hızlı doğrulama (2 dakika)
-
-1. `https://api.SIZINDOMAIN.com/api` adresine gidin →
-   `{"service":"HV Elektrik API","ok":true,...}` görmelisiniz.
-2. Ana sayfayı açın: slider, hizmet kategorileri, sayaçlar, projeler, footer
-   dolu görünmeli (boşsa `VITE_BACKEND_URL` veya `ALLOWED_ORIGINS` yanlış
-   ayarlanmış demektir — bkz. bölüm 3.3).
-3. **Sağ alt köşede "Made with Emergent" rozeti GÖRÜNMEMELİ.** Görünüyorsa
-   yanlış/eski bir kaynaktan build almışsınız demektir — bu repodaki
-   `frontend/index.html`'de o rozet zaten yok.
-4. İletişim formunu bir kez deneyin, admin panelden (`/admin/login`) mesajın
-   göründüğünü doğrulayın.
-5. Kariyer formunda bir CV yükleyip admin panelden görüntüleyin (Cloudinary
-   bağlantısını test eder).
