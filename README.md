@@ -19,11 +19,20 @@ Elinizde daha önceden kalmış bir zip/klasör varsa **kullanmayın**. Sadece
 `hvelektrikphp` reposunu şimdi indirin (GitHub → Code → Download ZIP, ya da
 `git clone`). Daha önce bir kere "eski site" sorunu bundan kaynaklanmıştı.
 
-### 2. `backend-php/.env` dosyasını doldurun — EN KRİTİK ADIM
+### 2. Size ayrıca (repo dışında) iletilen 2 öğeyi DOĞRU YERE koyun
 
-Size ayrıca (repo dışında, güvenli kanaldan) iletilen `.env` dosyasını
-`backend-php/` klasörünün köküne koyun, içindeki şu 2 alanı **mutlaka**
-kendinize göre düzenleyin:
+Repoda olmayan, size güvenli bir kanaldan ayrıca gönderilen 2 şey var —
+bunları tam olarak şu klasörlere koyun:
+
+| Size gönderilen | Tam olarak nereye koyulacak |
+|---|---|
+| `.env` dosyası | `backend-php/.env` (yani `backend-php` klasörünün içine, `public` klasörünün **yanına** — içine değil) |
+| `export` klasörü (12 adet `.json` dosyası) | `backend-php/scripts/export/` (böyle bir `scripts` klasörü zaten repoda var, içine `export` adında bir klasör açıp 12 dosyayı oraya koyun) |
+
+`export` klasörü mevcut haberleri, mesajları, hero slider'ı, projeleri vb.
+içeriyor — doğru yere koymazsanız site açılır ama içi bomboş gelir.
+
+### 3. `backend-php/.env` içindeki şu 2 alanı doldurun — EN KRİTİK ADIM
 
 - **`DB_HOST` / `DB_NAME` / `DB_USER` / `DB_PASS`** — hosting'te MySQL
   veritabanı oluşturunca alacağınız bilgiler (aşağıda adım adım anlatılıyor).
@@ -34,7 +43,14 @@ kendinize göre düzenleyin:
   ```
   (`https://` ile, hem www'lu hem www'suz varsa ikisi de, virgülle ayrılmış.)
 
-### 3. `frontend/.env` dosyasını doldurun, SONRA build alın
+Bu alanları doldurduktan sonra, veritabanına asıl veriyi aktarmak için
+(2. adımda koyduğunuz `export` klasörünü kullanarak):
+```bash
+cd backend-php
+php scripts/import_mysql.php
+```
+
+### 4. `frontend/.env` dosyasını doldurun, SONRA build alın
 
 `frontend/.env.example`'ı `frontend/.env` yapıp `VITE_BACKEND_URL`'e backend'in
 adresini yazın (ör. `https://api.hvelektrik.com.tr`, sonunda `/api` OLMADAN).
@@ -42,7 +58,7 @@ adresini yazın (ör. `https://api.hvelektrik.com.tr`, sonunda `/api` OLMADAN).
 çalıştırın** — build alırken bu adres kod içine gömülüyor, sonradan
 değiştiremezsiniz, yeniden build almanız gerekir.
 
-### 4. Deploy ettikten sonra hemen kontrol edin (2 dakika)
+### 5. Deploy ettikten sonra hemen kontrol edin (2 dakika)
 
 1. `https://api.SIZINDOMAIN.com/api` → `{"service":"HV Elektrik API","ok":true,...}` görmelisiniz.
 2. Ana sayfa: slider, kategoriler, sayaçlar, projeler, footer dolu olmalı
