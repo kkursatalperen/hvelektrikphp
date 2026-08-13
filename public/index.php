@@ -7,11 +7,12 @@ require __DIR__ . '/../src/Jwt.php';
 require __DIR__ . '/../src/Auth.php';
 require __DIR__ . '/../src/Cloudinary.php';
 require __DIR__ . '/../src/Resend.php';
+require __DIR__ . '/../src/content.php';
 require __DIR__ . '/../src/app.php';
 
-Http::applyCors();
-
 $config = require __DIR__ . '/../src/config.php';
+
+Http::applyCors($config['allowed_origins']);
 
 try {
     $pdo = Database::pdo($config);

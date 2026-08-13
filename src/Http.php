@@ -34,13 +34,12 @@ final class Http
         return is_array($data) ? $data : [];
     }
 
-    // Starlette'in CORSMiddleware'i allow_credentials=True oldugunda allow_origins=["*"]
-    // olsa bile literal "*" donmez (spec bunu yasakliyor); istegin Origin header'ini
-    // aynen yansitir. Ayni davranisi burada birebir uyguluyoruz.
-    public static function applyCors(): void
+    // Orijinal Python backend'i (master branch) artik sabit bir allow-list kullaniyor
+    // (wildcard-reflect degil). Origin, ALLOWED_ORIGINS listesindeyse aynen yansitilir.
+    public static function applyCors(array $allowedOrigins): void
     {
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-        if ($origin !== '') {
+        if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
             header("Access-Control-Allow-Origin: $origin");
             header('Access-Control-Allow-Credentials: true');
             header('Vary: Origin');

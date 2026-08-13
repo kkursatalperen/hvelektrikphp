@@ -62,6 +62,52 @@ function hv_dispatch(PDO $pdo, array $config): void
         ['POST', '#^/api/admin/news$#', fn() => hv_route_news_create($pdo, $config)],
         ['PUT', '#^/api/admin/news/(?P<id>[^/]+)$#', fn($p) => hv_route_news_update($pdo, $config, $p['id'])],
         ['DELETE', '#^/api/admin/news/(?P<id>[^/]+)$#', fn($p) => hv_route_news_delete($pdo, $config, $p['id'])],
+
+        ['GET', '#^/api/hero-slides$#', fn() => hv_route_hero_slides_public($pdo)],
+        ['GET', '#^/api/admin/hero-slides$#', fn() => hv_route_hero_slides_admin_list($pdo, $config)],
+        ['POST', '#^/api/admin/hero-slides$#', fn() => hv_route_hero_slide_create($pdo, $config)],
+        ['PUT', '#^/api/admin/hero-slides/(?P<id>[^/]+)$#', fn($p) => hv_route_hero_slide_update($pdo, $config, $p['id'])],
+        ['DELETE', '#^/api/admin/hero-slides/(?P<id>[^/]+)$#', fn($p) => hv_route_hero_slide_delete($pdo, $config, $p['id'])],
+
+        ['GET', '#^/api/categories$#', fn() => hv_route_categories_public($pdo)],
+        ['GET', '#^/api/admin/categories$#', fn() => hv_route_categories_admin_list($pdo, $config)],
+        ['POST', '#^/api/admin/categories$#', fn() => hv_route_category_create($pdo, $config)],
+        ['PUT', '#^/api/admin/categories/(?P<id>[^/]+)$#', fn($p) => hv_route_category_update($pdo, $config, $p['id'])],
+        ['DELETE', '#^/api/admin/categories/(?P<id>[^/]+)$#', fn($p) => hv_route_category_delete($pdo, $config, $p['id'])],
+
+        ['GET', '#^/api/counters$#', fn() => hv_route_counters_public($pdo)],
+        ['GET', '#^/api/admin/counters$#', fn() => hv_route_counters_admin_list($pdo, $config)],
+        ['POST', '#^/api/admin/counters$#', fn() => hv_route_counter_create($pdo, $config)],
+        ['PUT', '#^/api/admin/counters/(?P<id>[^/]+)$#', fn($p) => hv_route_counter_update($pdo, $config, $p['id'])],
+        ['DELETE', '#^/api/admin/counters/(?P<id>[^/]+)$#', fn($p) => hv_route_counter_delete($pdo, $config, $p['id'])],
+
+        ['GET', '#^/api/content$#', fn() => hv_route_content_public($pdo)],
+        ['GET', '#^/api/admin/content$#', fn() => hv_route_content_admin_list($pdo, $config)],
+        ['PUT', '#^/api/admin/content/(?P<key>[^/]+)$#', fn($p) => hv_route_content_upsert($pdo, $config, $p['key'])],
+
+        ['GET', '#^/api/footer$#', fn() => hv_route_footer_public($pdo)],
+        ['GET', '#^/api/admin/footer$#', fn() => hv_route_footer_admin_list($pdo, $config)],
+        ['PUT', '#^/api/admin/footer/(?P<key>[^/]+)$#', fn($p) => hv_route_footer_upsert($pdo, $config, $p['key'])],
+
+        ['GET', '#^/api/partners$#', fn() => hv_route_partners_public($pdo)],
+        ['GET', '#^/api/admin/partners$#', fn() => hv_route_partners_admin_list($pdo, $config)],
+        ['POST', '#^/api/admin/partners$#', fn() => hv_route_partner_create($pdo, $config)],
+        ['PUT', '#^/api/admin/partners/(?P<id>[^/]+)$#', fn($p) => hv_route_partner_update($pdo, $config, $p['id'])],
+        ['DELETE', '#^/api/admin/partners/(?P<id>[^/]+)$#', fn($p) => hv_route_partner_delete($pdo, $config, $p['id'])],
+
+        ['GET', '#^/api/projects$#', fn() => hv_route_projects_public($pdo)],
+        ['GET', '#^/api/admin/projects$#', fn() => hv_route_projects_admin_list($pdo, $config)],
+        ['POST', '#^/api/admin/projects$#', fn() => hv_route_project_create($pdo, $config)],
+        ['PUT', '#^/api/admin/projects/(?P<id>[^/]+)$#', fn($p) => hv_route_project_update($pdo, $config, $p['id'])],
+        ['DELETE', '#^/api/admin/projects/(?P<id>[^/]+)$#', fn($p) => hv_route_project_delete($pdo, $config, $p['id'])],
+
+        ['GET', '#^/api/career-posts$#', fn() => hv_route_career_posts_public($pdo)],
+        ['GET', '#^/api/admin/career-posts$#', fn() => hv_route_career_posts_admin_list($pdo, $config)],
+        ['POST', '#^/api/admin/career-posts$#', fn() => hv_route_career_post_create($pdo, $config)],
+        ['PUT', '#^/api/admin/career-posts/(?P<id>[^/]+)$#', fn($p) => hv_route_career_post_update($pdo, $config, $p['id'])],
+        ['DELETE', '#^/api/admin/career-posts/(?P<id>[^/]+)$#', fn($p) => hv_route_career_post_delete($pdo, $config, $p['id'])],
+
+        ['POST', '#^/api/admin/upload$#', fn() => hv_route_admin_upload($pdo, $config, $cloudinary)],
     ];
 
     foreach ($routes as [$routeMethod, $pattern, $handler]) {

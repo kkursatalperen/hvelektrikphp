@@ -72,4 +72,15 @@ return [
     'cloudinary_cloud_name' => hv_env('CLOUDINARY_CLOUD_NAME', ''),
     'cloudinary_api_key' => hv_env('CLOUDINARY_API_KEY', ''),
     'cloudinary_api_secret' => hv_env('CLOUDINARY_API_SECRET', ''),
+
+    // Virgulle ayrilmis, tam eslesme beklenen origin listesi (orijinal Python
+    // backend'deki CORSMiddleware allow_origins listesiyle ayni varsayilan).
+    // Siteyi yeni bir domain'e bagladiginizda buraya ekleyin.
+    'allowed_origins' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', hv_env(
+            'ALLOWED_ORIGINS',
+            'https://hvelektrik.vercel.app,http://localhost:5173,http://localhost:3000'
+        ))
+    ))),
 ];

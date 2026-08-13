@@ -1,2 +1,8 @@
 .env
 scripts/export/
+
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.*
