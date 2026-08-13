@@ -1,5 +1,5 @@
-.env
-scripts/export/
+backend-php/.env
+backend-php/scripts/export/
 
 frontend/node_modules/
 frontend/dist/

@@ -1,9 +1,12 @@
 # HV Elektrik — Paylaşımlı Hosting Paketi (Frontend + PHP Backend)
 
 Bu repo, orijinal projenin (FastAPI/Python + MongoDB backend, React/Vite frontend)
-**paylaşımlı hosting'te (sadece PHP + MySQL) çalışacak** tam karşılığıdır. İçinde
-hem güncel frontend (`frontend/`, Vite ile — `hvelektrik.vercel.app`'te şu an
-çalışan **aynı** kaynak) hem de PHP backend (kök dizin: `public/`, `src/`, vb.) var.
+**paylaşımlı hosting'te (sadece PHP + MySQL) çalışacak** tam karşılığıdır.
+
+```
+frontend/      React + Vite kaynak kodu (hvelektrik.vercel.app'te su an calisan AYNI kaynak)
+backend-php/   PHP + MySQL backend (Python backend'in tam karsiligi)
+```
 
 > **Önemli düzeltme notu:** Bu paketin önceki bir sürümü backend'in sadece
 > auth/contact/career/news kısmını içeriyordu — o, projenin eski (main branch,
@@ -18,7 +21,7 @@ hem güncel frontend (`frontend/`, Vite ile — `hvelektrik.vercel.app`'te şu a
 | Katman | Teknoloji | Nerede |
 |---|---|---|
 | Frontend | React + **Vite** (CRA/craco DEĞİL) | `frontend/` — statik build, herhangi bir hosting'de |
-| Backend | **PHP 8.1+** (bağımlılıksız, saf PHP) | `public/`, `src/` — paylaşımlı hosting |
+| Backend | **PHP 8.1+** (bağımlılıksız, saf PHP) | `backend-php/public/`, `backend-php/src/` — paylaşımlı hosting |
 | Veritabanı | **MySQL/MariaDB** | Hosting'in sunduğu MySQL |
 | Görsel/CV yükleme | Cloudinary | Mevcut hesap, değişmiyor |
 | Mail bildirimi (opsiyonel) | Resend | Mevcut hesap, değişmiyor |
@@ -39,23 +42,23 @@ Composer / SSH gerekmiyor — PHP tarafında hiçbir üçüncü parti kütüphan
 
 ## 3. Kurulum adımları
 
-### 3.1 Backend (PHP)
+### 3.1 Backend (PHP) — `backend-php/` klasörü
 
 1. **Veritabanı oluşturun** (hosting kontrol paneli → MySQL Veritabanları).
-2. **Şemayı çalıştırın**: phpMyAdmin → SQL sekmesi → `migrations/schema.sql`.
-3. **`.env` oluşturun** (`.env.example`'dan kopyalayın, `public/` klasörünün
-   DIŞINA, yani repo kökünde `backend-php/.env` olacak şekilde — document root
-   ayrı bir alt alan adına verildiyse bu otomatik olarak web'den erişilemez olur).
-4. **Dosyaları yükleyin**: `public/`, `src/`, `migrations/`, `.env` dosyalarını
-   hosting'e aktarın; bir subdomain açıp (ör. `api.hvelektrik.com.tr`) document
-   root'unu `public/` yapın.
+2. **Şemayı çalıştırın**: phpMyAdmin → SQL sekmesi → `backend-php/migrations/schema.sql`.
+3. **`.env` oluşturun** (`backend-php/.env.example`'dan kopyalayıp `backend-php/.env`
+   olarak kaydedin — `backend-php/public/` klasörünün DIŞINDA kalmalı; document
+   root ayrı bir alt alan adına verildiyse bu otomatik olarak web'den erişilemez olur).
+4. **Dosyaları yükleyin**: `backend-php/` klasörünün TAMAMINI (public/, src/,
+   migrations/, .env) hosting'e aktarın; bir subdomain açıp (ör.
+   `api.hvelektrik.com.tr`) document root'unu `backend-php/public/` yapın.
 5. **Veri taşıyın**: aşağıdaki "Veri taşıma" bölümüne bakın.
 6. **Test edin**: `https://api.hvelektrik.com.tr/api` → `{"service":"HV Elektrik API","ok":true,...}`.
 7. **`ALLOWED_ORIGINS`'i güncelleyin**: `.env`'de frontend'in gerçek adresini
    ekleyin (bkz. aşağıdaki CORS bölümü) — **bu adım atlanırsa frontend
    backend'e istek atamaz (CORS hatası alırsınız), site boş görünür.**
 
-### 3.2 Frontend (React/Vite)
+### 3.2 Frontend (React/Vite) — `frontend/` klasörü
 
 1. `frontend/.env.example`'ı `frontend/.env` yapıp `VITE_BACKEND_URL`'i
    backend'in adresine ayarlayın (sonunda `/api` OLMADAN).
@@ -64,10 +67,10 @@ Composer / SSH gerekmiyor — PHP tarafında hiçbir üçüncü parti kütüphan
    npm install --legacy-peer-deps
    npm run build
    ```
-3. Oluşan `frontend/dist/` klasörünün içeriğini hosting'e yükleyin (ana domain
-   veya istediğiniz alt klasör).
+3. Oluşan **`frontend/build/`** klasörünün içeriğini hosting'e yükleyin (ana
+   domain veya istediğiniz alt klasör) — çıktı klasörü `dist/` DEĞİL `build/`'dir.
 4. `frontend/vercel.json`'daki SPA rewrite kuralı (`/(.*) → /index.html`)
-   Apache'de karşılığı yok — Apache için `frontend/dist/.htaccess` dosyası
+   Apache'de karşılığı yok — Apache için `frontend/build/.htaccess` dosyası
    oluşturup şunu ekleyin:
    ```apache
    RewriteEngine On
@@ -96,22 +99,24 @@ ALLOWED_ORIGINS=https://hvelektrik.com.tr,https://www.hvelektrik.com.tr
 
 ## 4. Veri taşıma (mevcut MongoDB verisi → yeni MySQL)
 
-`scripts/export/` klasöründe zaten canlı veriden alınmış bir dışa aktarım var
-(bu depoya girmez — ayrıca, güvenli bir kanaldan size iletildi). İçindeki 12
-dosya: `users`, `messages`, `careers`, `news`, `hero_slides`, `categories`,
-`counters`, `page_content`, `footer_info`, `partners`, `projects`, `career_posts`.
+`backend-php/scripts/export/` klasöründe zaten canlı veriden alınmış bir dışa
+aktarım var (bu depoya girmez — ayrıca, güvenli bir kanaldan size iletildi).
+İçindeki 12 dosya: `users`, `messages`, `careers`, `news`, `hero_slides`,
+`categories`, `counters`, `page_content`, `footer_info`, `partners`,
+`projects`, `career_posts`.
 
 Yeniden/güncel almak isterseniz:
 
 ```bash
-cd scripts
+cd backend-php/scripts
 pip install pymongo dnspython
-MONGO_URL="<backend/.env icindeki MONGO_URL>" DB_NAME="<backend/.env icindeki DB_NAME>" python export_mongo.py
+MONGO_URL="<eski backend/.env icindeki MONGO_URL>" DB_NAME="<eski backend/.env icindeki DB_NAME>" python export_mongo.py
 ```
 
 Sonra hosting'de (SSH varsa):
 
 ```bash
+cd backend-php
 php scripts/import_mysql.php
 ```
 
@@ -119,8 +124,8 @@ Bu script hem admin kullanıcısını (`.env`'deki `ADMIN_EMAIL`/`ADMIN_PASSWORD
 ile) oluşturur, hem tüm içerikleri MySQL'e aktarır. Tekrar çalıştırmak veri
 kaybına yol açmaz (idempotent).
 
-SSH yoksa: `scripts/` klasörünü geçici olarak `public/` altına taşıyıp
-tarayıcıdan bir kere çalıştırın, hemen ardından silin.
+SSH yoksa: `backend-php/scripts/` klasörünü geçici olarak `backend-php/public/`
+altına taşıyıp tarayıcıdan bir kere çalıştırın, hemen ardından silin.
 
 ## 5. Ne taşınmadı
 
@@ -131,6 +136,7 @@ backend'de (server.py) hiçbir route tarafından kullanılmıyor — taşınmad�
 
 Backend:
 ```bash
+cd backend-php
 php -S localhost:8090 -t public public/router.php
 ```
 
