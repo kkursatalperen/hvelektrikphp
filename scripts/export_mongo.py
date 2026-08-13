@@ -19,11 +19,14 @@ from pathlib import Path
 
 from pymongo import MongoClient
 
-MONGO_URL = os.environ.get(
-    "MONGO_URL",
-    "mongodb+srv://gokdenizhv_db_user:gokdenizhv123@hv-elektrik.d6btczd.mongodb.net/?appName=hv-elektrik",
-)
-DB_NAME = os.environ.get("DB_NAME", "alpere123oguz_db_user")
+MONGO_URL = os.environ.get("MONGO_URL")
+DB_NAME = os.environ.get("DB_NAME")
+
+if not MONGO_URL or not DB_NAME:
+    raise SystemExit(
+        "MONGO_URL ve DB_NAME ortam degiskenlerini ayarlayin "
+        "(backend/.env dosyasindaki degerler kullanilabilir)."
+    )
 
 OUT_DIR = Path(__file__).parent / "export"
 OUT_DIR.mkdir(exist_ok=True)
