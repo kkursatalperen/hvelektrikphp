@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Gercek dosya/klasor degilse hepsini front controller'a yonlendir
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Authorization header bazi hostlarda PHP'ye varsayilan olarak iletilmez
+<IfModule mod_rewrite.c>
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>

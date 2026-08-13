@@ -1,0 +1,3 @@
+# Bu klasor web'den hic erisilebilir olmamali (yalnizca public/index.php icinden require edilir).
+# public/ disindaki bir yere yuklendiyseniz bu dosya ekstra guvenlik katmani saglar.
+Require all denied
