@@ -153,3 +153,39 @@ npm run dev
 kalma fazladan alanlar (`title`, `sector`, `location` gibi) içeriyordu — bunlar
 hiçbir yerde kullanılmadığı için taşınmadı, güncel alanlar (`title_tr` vb.)
 zaten doluydu ve birebir aktarıldı. Görsel olarak fark etmezsiniz.
+
+## 8. Hosting'e aktarırken kontrol listesi (ÖNEMLİ — "eski site geldi" hatasını önlemek için)
+
+Daha önce bu projede, eski/güncel-olmayan bir kod kopyası hosting'e yüklendiği
+için site "1 ay önceki hali" ile canlıya çıkmıştı. Bunun tekrarlanmaması için:
+
+- [ ] **Sadece bu repodan (`hvelektrikphp`) çalışın.** Elinizde daha önceden
+      kalmış başka bir zip, mail eki veya eski bir proje klasörü varsa
+      **kullanmayın, silin/karıştırmayın**. Tek doğru kaynak bu repo.
+- [ ] Repoyu **taze** çekin: `git clone` yapın (veya "Code → Download ZIP"
+      ile şimdi indirin) — eskiden indirdiğiniz bir kopyayı güncellemeye
+      çalışmayın.
+- [ ] Frontend build'ini **sıfırdan** alın: `frontend/node_modules` klasörü
+      zaten varsa silin, sonra `npm install --legacy-peer-deps` ve
+      `npm run build` çalıştırın. Eski bir `build/` klasörünü tekrar
+      yüklemeyin.
+- [ ] Hosting'de dosya yüklemeden önce **hedef klasörü boşaltın** (eski
+      dosyalar yeni dosyalarla karışıp tuhaf sonuçlara yol açabilir).
+- [ ] Ekstra bir yazılım kurmanıza **gerek yok** (XAMPP, Docker vb. sadece
+      bizim yerel testimiz içindi) — paylaşımlı hosting zaten PHP + MySQL +
+      Apache ile hazır gelir.
+
+### Deploy sonrası hızlı doğrulama (2 dakika)
+
+1. `https://api.SIZINDOMAIN.com/api` adresine gidin →
+   `{"service":"HV Elektrik API","ok":true,...}` görmelisiniz.
+2. Ana sayfayı açın: slider, hizmet kategorileri, sayaçlar, projeler, footer
+   dolu görünmeli (boşsa `VITE_BACKEND_URL` veya `ALLOWED_ORIGINS` yanlış
+   ayarlanmış demektir — bkz. bölüm 3.3).
+3. **Sağ alt köşede "Made with Emergent" rozeti GÖRÜNMEMELİ.** Görünüyorsa
+   yanlış/eski bir kaynaktan build almışsınız demektir — bu repodaki
+   `frontend/index.html`'de o rozet zaten yok.
+4. İletişim formunu bir kez deneyin, admin panelden (`/admin/login`) mesajın
+   göründüğünü doğrulayın.
+5. Kariyer formunda bir CV yükleyip admin panelden görüntüleyin (Cloudinary
+   bağlantısını test eder).
